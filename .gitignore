@@ -1,0 +1,5 @@
+/packages
+/console/obj
+/console/bin
+.idea
+.DS_Store
