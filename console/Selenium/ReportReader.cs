@@ -10,23 +10,24 @@ namespace console.Selenium
 {
     public class ReportReader
     {
+        private readonly ApplicationConfig _config;
         private FirefoxDriver _driver;
         private Actions _actions;
         private WebDriverWait _wait;
+        private IWebElement _iframe;
         
-        public ReportReader()
+        public ReportReader(ApplicationConfig config)
         {
-                _driver = new FirefoxDriver();
-                _actions = new Actions(_driver);
-                _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));            
+            _config = config;
+            _driver = new FirefoxDriver();
+            _actions = new Actions(_driver);
+            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));            
         }
 
         public bool readReport(ReportDownloadTask task)
         {
             try
             {
-                
-                
                 openWebsite();
                 injectToIframe();
                 selectTrainingLevel();
@@ -60,8 +61,9 @@ namespace console.Selenium
         {
             var openIframeButton = _driver.FindElement(By.CssSelector(".su-spoiler.su-spoiler-style-fancy.su-spoiler-icon-folder-1.center.su-spoiler-closed"));
             openIframeButton.Click();
-            
-            _actions.ScrollToElement(_driver.FindElement(By.CssSelector("iframe")));
+
+            _iframe = _driver.FindElement(By.CssSelector("iframe"));
+            _actions.ScrollToElement(_iframe);
             
             _driver.SwitchTo().Frame(0);
             
@@ -136,6 +138,9 @@ namespace console.Selenium
         {
             var captchaText = _driver.FindElement(By.CssSelector("input[name=captchaText]"));
             captchaText.SendKeys("");
+
+            var ss = new ScreenshotSaver(_driver, _iframe, _config);
+            ss.saveCaptchaImage();
 
             var waitForCaptcha = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
             waitForCaptcha.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("#modalWin")));

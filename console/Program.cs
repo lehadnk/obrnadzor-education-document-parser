@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using console.Dto;
 using console.Input;
 using console.Output;
@@ -19,6 +21,8 @@ namespace console
             var applicationConfig = new ApplicationConfig();
             applicationConfig.InputFilePath = args[0];
             applicationConfig.BrowserDownloadsDirectory = args[1];
+            applicationConfig.DisplayScale = 2; // @todo Since I have a retina screen
+            applicationConfig.ExecutablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             var fileOutput = new FileOutput(applicationConfig);
 
             var jsonInput = new JsonInput();
@@ -31,7 +35,7 @@ namespace console
                     continue;
                 }
             
-                var reportReader = new ReportReader();
+                var reportReader = new ReportReader(applicationConfig);
                 if (reportReader.readReport(task))
                 {
                     Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ загружен");

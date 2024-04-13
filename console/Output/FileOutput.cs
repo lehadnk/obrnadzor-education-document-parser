@@ -16,8 +16,7 @@ namespace console.Output
 
         private void prepareReportOutputPath()
         {
-            var executablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            var outputPath = Path.Combine(executablePath, "output");
+            var outputPath = Path.Combine(_applicationConfig.ExecutablePath, "output");
             if (!Directory.Exists(outputPath))
             {
                 Directory.CreateDirectory(outputPath);
