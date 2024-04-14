@@ -30,8 +30,6 @@ namespace console.Selenium
             var screenshotPath = Path.Combine(_config.ExecutablePath, "screenshot.png");
             takeScreenshot(screenshotPath);
             cropCaptchaImage(screenshotPath, captchaImagePath);
-            
-            throw new NotImplementedException();
         }
 
         private void takeScreenshot(string screenshotPath)

@@ -5,6 +5,7 @@ using console.Dto;
 using console.Input;
 using console.Output;
 using console.Selenium;
+using console.Threading;
 
 namespace console
 {
@@ -27,6 +28,10 @@ namespace console
 
             var jsonInput = new JsonInput();
             var taskList = jsonInput.readJsonFile(applicationConfig.InputFilePath);
+            
+            var reportReader = new ReportReader(applicationConfig);
+            var reportReaderThreadExecutor = new ReportReaderThreadExecutor(reportReader);
+            
             foreach (var task in taskList)
             {
                 if (fileOutput.isReportExists(task))
@@ -35,8 +40,7 @@ namespace console
                     continue;
                 }
             
-                var reportReader = new ReportReader(applicationConfig);
-                if (reportReader.readReport(task))
+                if (reportReaderThreadExecutor.ExecuteReadReportTask(task))
                 {
                     Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ загружен");
                     fileOutput.saveReport(task);                    

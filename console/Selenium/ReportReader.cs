@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using console.Dto;
+using console.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
@@ -10,12 +11,17 @@ namespace console.Selenium
 {
     public class ReportReader
     {
+        private readonly string _pageUrl = "https://obrnadzor.gov.ru/gosudarstvennye-uslugi-i-funkczii/7701537808-gosfunction/formirovanie-i-vedenie-federalnogo-reestra-svedenij-o-dokumentah-ob-obrazovanii-i-ili-o-kvalifikaczii-dokumentah-ob-obuchenii/";
+        
         private readonly ApplicationConfig _config;
         private FirefoxDriver _driver;
         private Actions _actions;
         private WebDriverWait _wait;
         private IWebElement _iframe;
         
+        public ReportReaderThreadExecutor Executor;
+        public String Captcha;
+
         public ReportReader(ApplicationConfig config)
         {
             _config = config;
@@ -54,7 +60,7 @@ namespace console.Selenium
         private void openWebsite()
         {
             _driver.Manage().Window.Maximize();
-            _driver.Navigate().GoToUrl("https://obrnadzor.gov.ru/gosudarstvennye-uslugi-i-funkczii/7701537808-gosfunction/formirovanie-i-vedenie-federalnogo-reestra-svedenij-o-dokumentah-ob-obrazovanii-i-ili-o-kvalifikaczii-dokumentah-ob-obuchenii/");
+            _driver.Navigate().GoToUrl(_pageUrl);
         }
 
         private void injectToIframe()
@@ -142,8 +148,17 @@ namespace console.Selenium
             var ss = new ScreenshotSaver(_driver, _iframe, _config);
             ss.saveCaptchaImage();
 
-            var waitForCaptcha = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
-            waitForCaptcha.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("#modalWin")));
+            if (Executor != null)
+            {
+                Executor.PauseExecution();                
+            }
+            
+            captchaText.SendKeys(Captcha);
+
+            var validateCaptchaButton = _driver.FindElement(By.CssSelector("button[name=checkDoc]"));
+            validateCaptchaButton.Click();
+            
+            _wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("#modalWin")));
         }
 
         private void saveReport()
