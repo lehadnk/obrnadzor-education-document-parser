@@ -51,6 +51,7 @@
     <ItemGroup>
         <Compile Include="Dto\ApplicationConfig.cs" />
         <Compile Include="Dto\ReportDownloadTask.cs" />
+        <Compile Include="Dto\ReportAccessStatus.cs" />
         <Compile Include="Input\JsonInput.cs" />
         <Compile Include="Output\FileOutput.cs" />
         <Compile Include="Program.cs" />

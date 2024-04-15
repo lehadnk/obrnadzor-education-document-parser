@@ -39,15 +39,26 @@ namespace console
                     Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ уже существует");
                     continue;
                 }
-            
-                if (reportReaderThreadExecutor.ExecuteReadReportTask(task))
+
+                var reportAccessStatus = reportReaderThreadExecutor.ExecuteReadReportTask(task);
+                switch (reportAccessStatus)
                 {
-                    Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ загружен");
-                    fileOutput.saveReport(task);                    
-                }
-                else
-                {
-                    Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ отсутствует");
+                    case ReportAccessStatus.FOUND:
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ загружен");
+                        fileOutput.saveReport(task);
+                        break;
+                    case ReportAccessStatus.FORM_IS_INCORRECT:
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - некорректные данные для формы поиска");
+                        break;
+                    case ReportAccessStatus.DOCUMENT_NOT_FOUND:
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ отсутствует");
+                        break;
+                    case ReportAccessStatus.CAPTCHA_IS_INCORRECT:
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - не введена captcha");
+                        break;
+                    default:
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - неизвестная ошибка");
+                        break;
                 }
             }
         }

@@ -18,7 +18,7 @@ namespace console.Threading
             _reportReader.Executor = this;
         }
         
-        public bool ExecuteReadReportTask(ReportDownloadTask reportDownloadTask)
+        public ReportAccessStatus ExecuteReadReportTask(ReportDownloadTask reportDownloadTask)
         {
             return _reportReader.readReport(reportDownloadTask);
         }

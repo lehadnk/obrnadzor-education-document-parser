@@ -25,12 +25,9 @@ namespace console.Selenium
         public ReportReader(ApplicationConfig config)
         {
             _config = config;
-            _driver = new FirefoxDriver();
-            _actions = new Actions(_driver);
-            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));            
         }
 
-        public bool readReport(ReportDownloadTask task)
+        public ReportAccessStatus readReport(ReportDownloadTask task)
         {
             try
             {
@@ -39,17 +36,19 @@ namespace console.Selenium
                 selectTrainingLevel();
                 selectOrganization(task);
                 fillDocumentData(task);
-                doCaptcha();
-                if (isReportAvailable())
+
+                var reportAccessStatus = ReportAccessStatus.CAPTCHA_IS_INCORRECT;
+                while (reportAccessStatus == ReportAccessStatus.CAPTCHA_IS_INCORRECT)
                 {
-                    saveReport();                
-                }
-                else
+                    reportAccessStatus = doCaptcha();
+                };
+
+                if (reportAccessStatus == ReportAccessStatus.FOUND)
                 {
-                    return false;
+                    saveReport();                    
                 }
                 
-                return true;
+                return reportAccessStatus;
             }
             finally
             {
@@ -59,6 +58,10 @@ namespace console.Selenium
 
         private void openWebsite()
         {
+            _driver = new FirefoxDriver();
+            _actions = new Actions(_driver);
+            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
+            
             _driver.Manage().Window.Maximize();
             _driver.Navigate().GoToUrl(_pageUrl);
         }
@@ -140,7 +143,7 @@ namespace console.Selenium
             Thread.Sleep(100);
         }
 
-        private void doCaptcha()
+        private ReportAccessStatus doCaptcha()
         {
             var captchaText = _driver.FindElement(By.CssSelector("input[name=captchaText]"));
             captchaText.SendKeys("");
@@ -154,30 +157,58 @@ namespace console.Selenium
             }
             
             captchaText.SendKeys(Captcha);
+            Thread.Sleep(500);
 
             var validateCaptchaButton = _driver.FindElement(By.CssSelector("button[name=checkDoc]"));
+            validateCaptchaButton.Submit();
             validateCaptchaButton.Click();
+            validateCaptchaButton.SendKeys(Keys.Return);
             
-            _wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("#modalWin")));
+            var _captchaWait = new WebDriverWait(_driver, TimeSpan.FromSeconds(120));
+            try
+            {
+                _captchaWait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("#modalWin")));
+            }
+            catch (WebDriverTimeoutException)
+            {
+                return ReportAccessStatus.CAPTCHA_IS_INCORRECT;
+            }
+            
+            try 
+            {
+                var incorrectCaptchaAlert = _driver.FindElement(By.CssSelector("#modalWin .alert.alert-success"));
+                
+                var closeAlertButton = _driver.FindElement(By.CssSelector("button[data-dismiss=modal].btn.btn-default"));
+                closeAlertButton.Submit();
+                Thread.Sleep(500);
+                
+                return ReportAccessStatus.CAPTCHA_IS_INCORRECT;
+            } catch (NoSuchElementException) { }
+
+            try
+            {
+                var formDataIsIncorrectAlert = _driver.FindElement(By.CssSelector("#modalWin .alert.alert-warning"));
+                var text = formDataIsIncorrectAlert.Text;
+                Console.WriteLine(formDataIsIncorrectAlert.Text);
+                if (formDataIsIncorrectAlert.Text.Contains("Проверьте правильность заполнения полей"))
+                {
+                    return ReportAccessStatus.FORM_IS_INCORRECT;                    
+                }
+                if (formDataIsIncorrectAlert.Text.Contains("Уточните поиск или воспользуйтесь формой обратной связи и сообщите Нам о выявленных ошибках или отсутствии данных."))
+                {
+                    return ReportAccessStatus.DOCUMENT_NOT_FOUND;                    
+                }
+
+                return ReportAccessStatus.UNKNOWN_ERROR;
+            } catch (NoSuchElementException) { }
+
+            return ReportAccessStatus.FOUND;
         }
 
         private void saveReport()
         {
             var saveButton = _driver.FindElement(By.CssSelector(".modal-body button"));
             saveButton.Click();
-        }
-        
-        private bool isReportAvailable()
-        {
-            try
-            {
-                var errorText = _driver.FindElement(By.CssSelector("#modalWin .alert"));
-                return false;
-            }
-            catch (NoSuchElementException)
-            {
-                return true;
-            }
         }
     }
 }
