@@ -58,7 +58,13 @@ namespace console.Selenium
 
         private void openWebsite()
         {
-            _driver = new FirefoxDriver();
+            var options = new FirefoxOptions();
+            if (_config.Headless)
+            {
+                options.AddArgument("--headless");                
+            }
+            
+            _driver = new FirefoxDriver(options);
             _actions = new Actions(_driver);
             _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
             
@@ -147,6 +153,7 @@ namespace console.Selenium
         {
             var captchaText = _driver.FindElement(By.CssSelector("input[name=captchaText]"));
             captchaText.SendKeys("");
+            captchaText.Clear();
 
             var ss = new ScreenshotSaver(_driver, _iframe, _config);
             ss.saveCaptchaImage();
@@ -179,7 +186,7 @@ namespace console.Selenium
                 var incorrectCaptchaAlert = _driver.FindElement(By.CssSelector("#modalWin .alert.alert-success"));
                 
                 var closeAlertButton = _driver.FindElement(By.CssSelector("button[data-dismiss=modal].btn.btn-default"));
-                closeAlertButton.Submit();
+                closeAlertButton.Click();
                 Thread.Sleep(500);
                 
                 return ReportAccessStatus.CAPTCHA_IS_INCORRECT;
@@ -188,8 +195,6 @@ namespace console.Selenium
             try
             {
                 var formDataIsIncorrectAlert = _driver.FindElement(By.CssSelector("#modalWin .alert.alert-warning"));
-                var text = formDataIsIncorrectAlert.Text;
-                Console.WriteLine(formDataIsIncorrectAlert.Text);
                 if (formDataIsIncorrectAlert.Text.Contains("Проверьте правильность заполнения полей"))
                 {
                     return ReportAccessStatus.FORM_IS_INCORRECT;                    

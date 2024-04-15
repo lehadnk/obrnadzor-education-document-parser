@@ -24,6 +24,14 @@ namespace console
             applicationConfig.BrowserDownloadsDirectory = args[1];
             applicationConfig.DisplayScale = 2; // @todo Since I have a retina screen
             applicationConfig.ExecutablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            foreach (var argument in args)
+            {
+                if (argument == "--headless")
+                {
+                    applicationConfig.Headless = true;
+                }
+            }
+            
             var fileOutput = new FileOutput(applicationConfig);
 
             var jsonInput = new JsonInput();

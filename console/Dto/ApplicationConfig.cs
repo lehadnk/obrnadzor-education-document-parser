@@ -7,5 +7,6 @@ namespace console.Dto
         public string ReportOutputPath { get; set; }
         public float DisplayScale { get; set; }
         public string ExecutablePath { get; set; }
+        public bool Headless { get; set; } = false;
     }
 }
