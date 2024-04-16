@@ -40,7 +40,7 @@ namespace console.Selenium
                 var reportAccessStatus = ReportAccessStatus.CAPTCHA_IS_INCORRECT;
                 while (reportAccessStatus == ReportAccessStatus.CAPTCHA_IS_INCORRECT)
                 {
-                    reportAccessStatus = doCaptcha();
+                    reportAccessStatus = DoCaptcha();
                 };
 
                 if (reportAccessStatus == ReportAccessStatus.FOUND)
@@ -52,7 +52,7 @@ namespace console.Selenium
             }
             finally
             {
-                _driver.Close();
+                _driver.Quit();
             }
         }
 
@@ -149,18 +149,18 @@ namespace console.Selenium
             Thread.Sleep(100);
         }
 
-        private ReportAccessStatus doCaptcha()
+        private ReportAccessStatus DoCaptcha()
         {
             var captchaText = _driver.FindElement(By.CssSelector("input[name=captchaText]"));
             captchaText.SendKeys("");
             captchaText.Clear();
 
             var ss = new ScreenshotSaver(_driver, _iframe, _config);
-            ss.saveCaptchaImage();
+            var captchaImagePath = ss.SaveCaptchaImage();
 
             if (Executor != null)
             {
-                Executor.PauseExecution();                
+                Executor.PauseExecution(captchaImagePath);                
             }
             
             captchaText.SendKeys(Captcha);
@@ -178,6 +178,7 @@ namespace console.Selenium
             }
             catch (WebDriverTimeoutException)
             {
+                Console.WriteLine("Captcha is incorrect");
                 return ReportAccessStatus.CAPTCHA_IS_INCORRECT;
             }
             

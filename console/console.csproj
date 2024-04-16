@@ -5,7 +5,7 @@
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProjectGuid>{EFBEAF22-CD3B-4E93-9FAD-806F8CC6837F}</ProjectGuid>
-        <OutputType>Exe</OutputType>
+        <OutputType>WinExe</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>console</RootNamespace>
         <AssemblyName>console</AssemblyName>
@@ -43,6 +43,7 @@
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
         <Reference Include="System.Drawing" />
+        <Reference Include="System.Windows.Forms" />
         <Reference Include="System.Xml" />
         <Reference Include="WebDriver, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
           <HintPath>..\packages\Selenium.WebDriver.4.19.0\lib\netstandard2.0\WebDriver.dll</HintPath>
@@ -53,6 +54,7 @@
         <Compile Include="Dto\ReportDownloadTask.cs" />
         <Compile Include="Dto\ReportAccessStatus.cs" />
         <Compile Include="Input\JsonInput.cs" />
+        <Compile Include="Input\WindowsFormsCaptchaInput.cs" />
         <Compile Include="Output\FileOutput.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />

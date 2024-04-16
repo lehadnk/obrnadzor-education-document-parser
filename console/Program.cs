@@ -13,9 +13,9 @@ namespace console
     {
         public static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length < 2)
             {
-                Console.WriteLine("Пример запуска команды: Console.exe <input.json> <C:\\Users\\lehadnk\\>");
+                Console.WriteLine("Usage: Console.exe <input.json> <C:\\Users\\lehadnk\\>");
                 return;
             }
 
@@ -26,9 +26,13 @@ namespace console
             applicationConfig.ExecutablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             foreach (var argument in args)
             {
-                if (argument == "--headless")
+                if (argument == "--headless=0")
                 {
-                    applicationConfig.Headless = true;
+                    applicationConfig.Headless = false;
+                }
+                if (argument == "--console")
+                {
+                    applicationConfig.Console = true;
                 }
             }
             
@@ -38,13 +42,13 @@ namespace console
             var taskList = jsonInput.readJsonFile(applicationConfig.InputFilePath);
             
             var reportReader = new ReportReader(applicationConfig);
-            var reportReaderThreadExecutor = new ReportReaderThreadExecutor(reportReader);
+            var reportReaderThreadExecutor = new ReportReaderThreadExecutor(applicationConfig, reportReader);
             
             foreach (var task in taskList)
             {
                 if (fileOutput.isReportExists(task))
                 {
-                    Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ уже существует");
+                    Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - document already exists");
                     continue;
                 }
 
@@ -52,20 +56,20 @@ namespace console
                 switch (reportAccessStatus)
                 {
                     case ReportAccessStatus.FOUND:
-                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ загружен");
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - download complete");
                         fileOutput.saveReport(task);
                         break;
                     case ReportAccessStatus.FORM_IS_INCORRECT:
-                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - некорректные данные для формы поиска");
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - incorrect form request data");
                         break;
                     case ReportAccessStatus.DOCUMENT_NOT_FOUND:
-                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ отсутствует");
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - missing document");
                         break;
                     case ReportAccessStatus.CAPTCHA_IS_INCORRECT:
-                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - не введена captcha");
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - wrong captcha");
                         break;
                     default:
-                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - неизвестная ошибка");
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - unknown error");
                         break;
                 }
             }
