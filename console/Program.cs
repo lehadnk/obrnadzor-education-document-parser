@@ -28,12 +28,16 @@ namespace console
             applicationConfig.BrowserDownloadsDirectory = args[1];
             applicationConfig.DisplayScale = 1;
             applicationConfig.ExecutablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            
             foreach (var argument in args)
             {
                 if (argument == "--headless=0")
                 {
                     applicationConfig.Headless = false;
-                    applicationConfig.DisplayScale = 2; // @todo Since I have a retina screen
+                }
+                if (argument.StartsWith("--displayScale="))
+                {
+                    applicationConfig.DisplayScale = int.Parse(argument.Substring(15));
                 }
                 if (argument == "--console")
                 {
