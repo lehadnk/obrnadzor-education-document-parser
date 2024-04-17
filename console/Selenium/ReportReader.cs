@@ -58,13 +58,18 @@ namespace console.Selenium
 
         private void openWebsite()
         {
+            var service = FirefoxDriverService.CreateDefaultService();
+            service.SuppressInitialDiagnosticInformation = true;
+            service.HideCommandPromptWindow = true;
+            
             var options = new FirefoxOptions();
+            options.AddArgument("--log-level=3");
             if (_config.Headless)
             {
-                options.AddArgument("--headless");                
+                options.AddArgument("--headless");         
             }
             
-            _driver = new FirefoxDriver(options);
+            _driver = new FirefoxDriver(service, options);
             _actions = new Actions(_driver);
             _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
             

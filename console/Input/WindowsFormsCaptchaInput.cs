@@ -50,7 +50,6 @@ namespace console.Input
 
         private void HandleConfirmButtonClick(object sender, EventArgs e)
         {
-            Console.WriteLine("Button clicked");
             _confirmButton.Enabled = false;
             _reportReaderThreadExecutor.ResumeExecution(_textBox.Text);
             _form.Close();

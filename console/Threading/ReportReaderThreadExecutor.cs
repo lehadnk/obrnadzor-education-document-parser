@@ -30,7 +30,6 @@ namespace console.Threading
 
         public void PauseExecution(string captchaImagePath)
         {
-            Console.WriteLine("Execution paused, waiting for captcha...");
             if (_applicationConfig.Console)
             {
                 var captcha = Console.ReadLine();
@@ -54,7 +53,6 @@ namespace console.Threading
                 _manualResetEvent.Set();
             }
             _reportReader.Captcha = inputCaptchaText;
-            Console.WriteLine("Execution continued...");
         }
 
         private void DisplayCaptchaInputForm()
