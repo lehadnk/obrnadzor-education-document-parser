@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading;
 using console.Dto;
 using console.Threading;
@@ -27,15 +28,15 @@ namespace console.Selenium
             _config = config;
         }
 
-        public ReportAccessStatus readReport(ReportDownloadTask task)
+        public ReportAccessStatus ReadReport(ReportDownloadTask task)
         {
             try
             {
-                openWebsite();
-                injectToIframe();
-                selectTrainingLevel();
-                selectOrganization(task);
-                fillDocumentData(task);
+                OpenWebsite();
+                InjectToIframe();
+                SelectTrainingLevel();
+                SelectOrganization(task);
+                FillDocumentData(task);
 
                 var reportAccessStatus = ReportAccessStatus.CAPTCHA_IS_INCORRECT;
                 while (reportAccessStatus == ReportAccessStatus.CAPTCHA_IS_INCORRECT)
@@ -45,7 +46,7 @@ namespace console.Selenium
 
                 if (reportAccessStatus == ReportAccessStatus.FOUND)
                 {
-                    saveReport();                    
+                    SaveReport();                    
                 }
                 
                 return reportAccessStatus;
@@ -56,7 +57,7 @@ namespace console.Selenium
             }
         }
 
-        private void openWebsite()
+        private void OpenWebsite()
         {
             var service = FirefoxDriverService.CreateDefaultService();
             service.SuppressInitialDiagnosticInformation = true;
@@ -64,6 +65,8 @@ namespace console.Selenium
             
             var options = new FirefoxOptions();
             options.AddArgument("--log-level=3");
+            options.SetPreference("browser.download.dir", _config.BrowserDownloadsDirectory);
+            options.SetPreference("browser.download.folderList", 2);
             if (_config.Headless)
             {
                 options.AddArgument("--headless");         
@@ -77,7 +80,7 @@ namespace console.Selenium
             _driver.Navigate().GoToUrl(_pageUrl);
         }
 
-        private void injectToIframe()
+        private void InjectToIframe()
         {
             var openIframeButton = _driver.FindElement(By.CssSelector(".su-spoiler.su-spoiler-style-fancy.su-spoiler-icon-folder-1.center.su-spoiler-closed"));
             openIframeButton.Click();
@@ -90,7 +93,7 @@ namespace console.Selenium
             _wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("[name=trainingLevel]")));
         }
 
-        private void selectTrainingLevel()
+        private void SelectTrainingLevel()
         {
             var select = _driver.FindElement(By.CssSelector("[name=trainingLevel]"));
             select.Click();
@@ -100,7 +103,7 @@ namespace console.Selenium
             _wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector(".dpo .searchOrg")));
         }
         
-        private void selectOrganization(ReportDownloadTask task)
+        private void SelectOrganization(ReportDownloadTask task)
         {
             
             var searchOrgOpenButton = _driver.FindElement(By.CssSelector(".dpo .searchOrg"));
@@ -134,7 +137,7 @@ namespace console.Selenium
                 By.CssSelector("[style*=\"color: darkblue\"]")));
         }
 
-        private void fillDocumentData(ReportDownloadTask task)
+        private void FillDocumentData(ReportDownloadTask task)
         {
             var surnameInput = _driver.FindElement(By.CssSelector(".dpo input[name=surname]"));
             surnameInput.SendKeys(task.lastName);
@@ -216,7 +219,7 @@ namespace console.Selenium
             return ReportAccessStatus.FOUND;
         }
 
-        private void saveReport()
+        private void SaveReport()
         {
             var saveButton = _driver.FindElement(By.CssSelector(".modal-body button"));
             saveButton.Click();

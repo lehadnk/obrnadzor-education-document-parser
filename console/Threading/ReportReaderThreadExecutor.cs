@@ -25,7 +25,7 @@ namespace console.Threading
         public ReportAccessStatus ExecuteReadReportTask(ReportDownloadTask reportDownloadTask)
         {
             _manualResetEvent = new ManualResetEvent(false);
-            return _reportReader.readReport(reportDownloadTask);
+            return _reportReader.ReadReport(reportDownloadTask);
         }
 
         public void PauseExecution(string captchaImagePath)

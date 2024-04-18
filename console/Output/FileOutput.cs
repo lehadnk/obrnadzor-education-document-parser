@@ -11,10 +11,10 @@ namespace console.Output
         public FileOutput(ApplicationConfig applicationConfig)
         {
             _applicationConfig = applicationConfig;
-            prepareReportOutputPath();
+            PrepareReportOutputPath();
         }
 
-        private void prepareReportOutputPath()
+        private void PrepareReportOutputPath()
         {
             var outputPath = Path.Combine(_applicationConfig.ExecutablePath, "output");
             if (!Directory.Exists(outputPath))
@@ -22,36 +22,39 @@ namespace console.Output
                 Directory.CreateDirectory(outputPath);
             }
 
+            if (!Directory.Exists(_applicationConfig.BrowserDownloadsDirectory))
+            {
+                Directory.CreateDirectory(_applicationConfig.BrowserDownloadsDirectory);
+            }
+
             _applicationConfig.ReportOutputPath = outputPath;
         }
 
-        public bool saveReport(ReportDownloadTask task)
+        public bool SaveReport(ReportDownloadTask task)
         {
-            var downloadedReportFileName = Path.Combine(this._applicationConfig.BrowserDownloadsDirectory, "Документ_об_образовании.pdf");
+            var downloadedReportFileName = Path.Combine(_applicationConfig.BrowserDownloadsDirectory, "Документ_об_образовании.pdf");
             if (!File.Exists(downloadedReportFileName))
             {
                 Console.WriteLine("Не удалось найти загруженный файл " + downloadedReportFileName);
-                Console.WriteLine("Проверьте второй аргумент запускной команды, отвечающий за путь до директории для файлов, загружаемых Mozilla Firefox (по умолчанию: C:\\Users\\<Имя пользователя>\\Downloads>)");
+                Console.WriteLine("Зайдите на страницу about:config Mozilla Firefox, и проверьте установку переменных browser.downloads.dir и browser.downloads.folderList. Попробуйте изменить значение на другой путь при помощи аргумента программы --seleniumDownloadDir, например: obrnadzor.exe input.json --seleniumDownloadDir=C:\\Downloads");
                 return false;
             }
-
-            
             
             File.Copy(
                 downloadedReportFileName, 
-                Path.Combine(_applicationConfig.ReportOutputPath, getReportFileName(task))
+                Path.Combine(_applicationConfig.ReportOutputPath, GetReportFileName(task))
             );
             return true;
         }
 
-        public bool isReportExists(ReportDownloadTask task)
+        public bool IsReportExists(ReportDownloadTask task)
         {
-            return File.Exists(Path.Combine(_applicationConfig.ReportOutputPath, getReportFileName(task)));
+            return File.Exists(Path.Combine(_applicationConfig.ReportOutputPath, GetReportFileName(task)));
         }
 
-        private string getReportFileName(ReportDownloadTask task)
+        private string GetReportFileName(ReportDownloadTask task)
         {
-            return task.lastName + "." + task.documentNumber + ".pdf";
+            return task.registrationNumber + "_" + task.organizationOgrn + ".pdf";
         }
     }
 }

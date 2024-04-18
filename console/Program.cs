@@ -16,18 +16,18 @@ namespace console
         {
             Console.OutputEncoding = Encoding.UTF8;
             ;
-            Console.WriteLine("Obrnadzor Report Parser v1.0");
-            if (args.Length < 2)
+            Console.WriteLine("Obrnadzor Report Parser v" + Assembly.GetExecutingAssembly().GetName().Version);
+            if (args.Length < 1)
             {
-                Console.WriteLine("Использование: Console.exe <input.json> <C:\\Users\\lehadnk\\Downloads>");
+                Console.WriteLine("Использование: Console.exe <input.json>");
                 return 1;
             }
 
             var applicationConfig = new ApplicationConfig();
             applicationConfig.InputFilePath = args[0];
-            applicationConfig.BrowserDownloadsDirectory = args[1];
             applicationConfig.DisplayScale = 1;
             applicationConfig.ExecutablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            applicationConfig.BrowserDownloadsDirectory = Path.Combine(applicationConfig.ExecutablePath, "downloads");
             
             foreach (var argument in args)
             {
@@ -37,11 +37,23 @@ namespace console
                 }
                 if (argument.StartsWith("--displayScale="))
                 {
-                    applicationConfig.DisplayScale = int.Parse(argument.Substring(15));
+                    try
+                    {
+                        applicationConfig.DisplayScale = int.Parse(argument.Substring(15));
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("Неверное значение displayScale: " + argument.Substring(15) + ". Если вы вводите дробное число, попробуйте иной разделитель.");
+                    }
                 }
                 if (argument == "--console")
                 {
                     applicationConfig.Console = true;
+                }
+
+                if (argument == "--seleniumDownloadDir=")
+                {
+                    applicationConfig.BrowserDownloadsDirectory = argument.Substring(23);
                 }
             }
             
@@ -55,7 +67,7 @@ namespace console
             
             foreach (var task in taskList)
             {
-                if (fileOutput.isReportExists(task))
+                if (fileOutput.IsReportExists(task))
                 {
                     Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - документ уже существует");
                     continue;
@@ -67,7 +79,7 @@ namespace console
                 {
                     case ReportAccessStatus.FOUND:
                         Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - загрузка завершена");
-                        if (!fileOutput.saveReport(task))
+                        if (!fileOutput.SaveReport(task))
                         {
                             return 1;
                         }
