@@ -12,7 +12,7 @@ namespace console
 {
     internal class Program
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
             ;
@@ -20,7 +20,7 @@ namespace console
             if (args.Length < 2)
             {
                 Console.WriteLine("Использование: Console.exe <input.json> <C:\\Users\\lehadnk\\Downloads>");
-                return;
+                return 1;
             }
 
             var applicationConfig = new ApplicationConfig();
@@ -67,7 +67,10 @@ namespace console
                 {
                     case ReportAccessStatus.FOUND:
                         Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - загрузка завершена");
-                        fileOutput.saveReport(task);
+                        if (!fileOutput.saveReport(task))
+                        {
+                            return 1;
+                        }
                         break;
                     case ReportAccessStatus.FORM_IS_INCORRECT:
                         Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - неправильный формат запроса");
@@ -83,6 +86,8 @@ namespace console
                         break;
                 }
             }
+
+            return 0;
         }
     }
 }
