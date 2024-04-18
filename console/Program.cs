@@ -19,7 +19,7 @@ namespace console
             Console.WriteLine("Obrnadzor Report Parser v1.0");
             if (args.Length < 2)
             {
-                Console.WriteLine("Использование: Console.exe <input.json> <C:\\Users\\lehadnk\\>");
+                Console.WriteLine("Использование: Console.exe <input.json> <C:\\Users\\lehadnk\\Downloads>");
                 return;
             }
 
