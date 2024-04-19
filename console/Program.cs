@@ -78,11 +78,13 @@ namespace console
                 switch (reportAccessStatus)
                 {
                     case ReportAccessStatus.FOUND:
-                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - загрузка завершена");
-                        if (!fileOutput.SaveReport(task))
+                        var fileOutputPath = fileOutput.SaveReport(task);
+                        if (fileOutputPath == null)
                         {
                             return 1;
                         }
+                        
+                        Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - загрузка завершена. Файл сохранен по пути: " + fileOutputPath);
                         break;
                     case ReportAccessStatus.FORM_IS_INCORRECT:
                         Console.WriteLine(task.lastName + " (" + task.documentNumber + ") - неправильный формат запроса");

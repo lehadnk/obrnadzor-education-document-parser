@@ -30,21 +30,22 @@ namespace console.Output
             _applicationConfig.ReportOutputPath = outputPath;
         }
 
-        public bool SaveReport(ReportDownloadTask task)
+        public string SaveReport(ReportDownloadTask task)
         {
             var downloadedReportFileName = Path.Combine(_applicationConfig.BrowserDownloadsDirectory, "Документ_об_образовании.pdf");
             if (!File.Exists(downloadedReportFileName))
             {
                 Console.WriteLine("Не удалось найти загруженный файл " + downloadedReportFileName);
                 Console.WriteLine("Зайдите на страницу about:config Mozilla Firefox, и проверьте установку переменных browser.downloads.dir и browser.downloads.folderList. Попробуйте изменить значение на другой путь при помощи аргумента программы --seleniumDownloadDir, например: obrnadzor.exe input.json --seleniumDownloadDir=C:\\Downloads");
-                return false;
+                return null;
             }
-            
+
+            var fileSavePath = Path.Combine(_applicationConfig.ReportOutputPath, GetReportFileName(task));
             File.Copy(
                 downloadedReportFileName, 
                 Path.Combine(_applicationConfig.ReportOutputPath, GetReportFileName(task))
             );
-            return true;
+            return fileSavePath;
         }
 
         public bool IsReportExists(ReportDownloadTask task)
