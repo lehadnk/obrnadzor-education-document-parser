@@ -9,5 +9,6 @@ namespace console.Dto
         public string ExecutablePath { get; set; }
         public bool Headless { get; set; } = true;
         public bool Console { get; set; }
+        public bool Debug { get; set; }
     }
 }

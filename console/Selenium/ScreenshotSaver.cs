@@ -13,6 +13,7 @@ namespace console.Selenium
         private readonly IWebElement _iframe;
         private readonly ApplicationConfig _config;
         private readonly string _captchaImagePath;
+        private readonly string _debugImagePath;
 
         public ScreenshotSaver(FirefoxDriver _driver, IWebElement iframe, ApplicationConfig _config)
         {
@@ -24,6 +25,15 @@ namespace console.Selenium
             if (!Directory.Exists(_captchaImagePath))
             {
                 Directory.CreateDirectory(_captchaImagePath);
+            }
+
+            if (_config.Debug)
+            {
+                _debugImagePath = Path.Combine(_config.ExecutablePath, "debug");
+                if (!Directory.Exists(_debugImagePath))
+                {
+                    Directory.CreateDirectory(_debugImagePath);
+                }
             }
         }
         
@@ -74,7 +84,17 @@ namespace console.Selenium
         
         private int AdjustCoordinateToDisplayScale(int coord)
         {
-            return (int)Math.Round((coord) * _config.DisplayScale);
+            return (int) Math.Round(coord * _config.DisplayScale);
+        }
+
+        public void SaveDebugScreenshot()
+        {
+            if (!_config.Debug)
+            {
+                return;
+            }
+            var debugImagePath = Path.Combine(_debugImagePath, "captcha-" + DateTime.Now.ToString("yyyy-MM-dd.hh.mm.ss") + ".png");
+            TakeScreenshot(debugImagePath);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace console
         public static int Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
-            ;
+            
             Console.WriteLine("Obrnadzor Report Parser v" + Assembly.GetExecutingAssembly().GetName().Version);
             if (args.Length < 1)
             {
@@ -26,6 +26,7 @@ namespace console
             var applicationConfig = new ApplicationConfig();
             applicationConfig.InputFilePath = args[0];
             applicationConfig.DisplayScale = 1;
+            applicationConfig.Debug = false;
             applicationConfig.ExecutablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             applicationConfig.BrowserDownloadsDirectory = Path.Combine(applicationConfig.ExecutablePath, "downloads");
             
@@ -34,6 +35,11 @@ namespace console
                 if (argument == "--headless=0")
                 {
                     applicationConfig.Headless = false;
+                }
+                if (argument == "--debug")
+                {
+                    applicationConfig.Debug = true;
+                    Console.WriteLine("Режим отладки включен");
                 }
                 if (argument.StartsWith("--displayScale="))
                 {
@@ -56,6 +62,8 @@ namespace console
                     applicationConfig.BrowserDownloadsDirectory = argument.Substring(23);
                 }
             }
+            
+            Logger.Logger.SetApplicationConfig(applicationConfig);
             
             var fileOutput = new FileOutput(applicationConfig);
 

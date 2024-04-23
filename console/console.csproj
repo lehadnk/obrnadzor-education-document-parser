@@ -55,6 +55,7 @@
         <Compile Include="Dto\ReportAccessStatus.cs" />
         <Compile Include="Input\JsonInput.cs" />
         <Compile Include="Input\WindowsFormsCaptchaInput.cs" />
+        <Compile Include="Logger\Logger.cs" />
         <Compile Include="Output\FileOutput.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />

@@ -60,11 +60,17 @@ namespace console.Selenium
         private void OpenWebsite()
         {
             var service = FirefoxDriverService.CreateDefaultService();
-            service.SuppressInitialDiagnosticInformation = true;
-            service.HideCommandPromptWindow = true;
+            if (!_config.Debug)
+            {
+                service.SuppressInitialDiagnosticInformation = true;
+                service.HideCommandPromptWindow = true;
+            }
             
             var options = new FirefoxOptions();
-            options.AddArgument("--log-level=3");
+            if (!_config.Debug)
+            {
+                options.AddArgument("--log-level=3");
+            }
             options.SetPreference("browser.download.dir", _config.BrowserDownloadsDirectory);
             options.SetPreference("browser.download.folderList", 2);
             if (_config.Headless)
@@ -215,6 +221,9 @@ namespace console.Selenium
 
                 return ReportAccessStatus.UNKNOWN_ERROR;
             } catch (NoSuchElementException) { }
+            
+            ss.SaveDebugScreenshot();
+            Logger.Logger.Debug("Документ найден. Сохранен отладочный снимок экрана.");
 
             return ReportAccessStatus.FOUND;
         }
@@ -223,6 +232,9 @@ namespace console.Selenium
         {
             var saveButton = _driver.FindElement(By.CssSelector(".modal-body button"));
             saveButton.Click();
+            saveButton.SendKeys(Keys.Return);
+            Logger.Logger.Debug("Нажали кнопку сохранения документа");
+            Thread.Sleep(1500);
         }
     }
 }
